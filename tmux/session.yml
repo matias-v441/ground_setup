@@ -14,17 +14,12 @@ windows:
   - compose:
       layout: tiled
       panes:
-        - ./compose/down.sh ; ./compose/up.sh ; lazydocker
+        - ../compose/down.sh ; ../compose/up.sh ; lazydocker
   
   - rviz:
       layout: tiled
       panes:
         - ros2 run rviz2 rviz2 -d ../config/rviz/uav14.rviz --ros-args -p use_sim_time:=true
-
-  - zenoh:
-      layout: tiled
-      panes:
-        - export ZENOH_ROUTER_CONFIG_URI=../config/zenoh/pc_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd
 
   - status:
       layout: tiled

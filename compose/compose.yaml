@@ -20,9 +20,9 @@ x-mrs-base: &mrs_base
 
 services:
 
-  #zenoh:
-  #  <<: *mrs_base
-  #  command: bash -c 'export ZENOH_ROUTER_CONFIG_URI=${CONFIG_DIR}/zenoh/pc_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd'
+  zenoh:
+    <<: *mrs_base
+    command: bash -c 'export ZENOH_ROUTER_CONFIG_URI=${CONFIG_DIR}/zenoh/_pc_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd'
 
   fleet_manager:
     <<: *mrs_base

@@ -12,7 +12,8 @@ from sensor_msgs.msg import Image
 CAMERAS = {
     #"/uav11/rgb/image_raw": "video/raw",
     #"/uav11/rgbd/infra1/image_rect_raw": "video/raw",
-    "/uav11/realsense/infra1/image_rect_raw": "video/raw",
+    "/uav14/realsense/infra1/image_rect_raw": "video/raw",
+    "/uav16/realsense/infra1/image_rect_raw": "video/raw",
     #"/uav11/open_vins/trackhist": "video/vins",
 }
 
