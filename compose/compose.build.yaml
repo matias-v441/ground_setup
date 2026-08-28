@@ -1,0 +1,21 @@
+volumes:
+
+  workspace:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ../
+
+x-mrs-base: &mrs_base
+  image: ${IROC_DEV_IMAGE:-ctumrs/mrs_uav_system:stable}
+  privileged: true
+  working_dir: /etc/docker/workspace
+  volumes:
+    - workspace:/etc/docker/workspace
+
+services:
+
+  builder: 
+    <<: *mrs_base
+    command: bash -c "colcon build"

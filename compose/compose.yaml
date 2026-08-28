@@ -1,0 +1,41 @@
+volumes:
+
+  workspace:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${WORKSPACE_DIR}
+
+x-mrs-base: &mrs_base
+  image: ${IROC_DEV_IMAGE:-ctumrs/mrs_uav_system:stable}
+  ipc: host
+  privileged: true
+  working_dir: /etc/docker/workspace
+  volumes:
+    - workspace:/etc/docker/workspace
+  env_file:
+    - ${SETUP_ENV_FILE:-stack.env}
+  network_mode: host
+
+services:
+
+  #zenoh:
+  #  <<: *mrs_base
+  #  command: bash -c 'export ZENOH_ROUTER_CONFIG_URI=${CONFIG_DIR}/zenoh/pc_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd'
+
+  fleet_manager:
+    <<: *mrs_base
+    command: >
+      bash -c ". install/setup.bash && ros2 launch iroc_fleet_manager iroc_fleet_manager.launch.py network_config:=${CONFIG_DIR}/network_config.yaml"
+ 
+  iroc_bridge:
+    <<: *mrs_base
+    command: >
+      bash -c ". install/setup.bash && ros2 launch iroc_bridge iroc_bridge.launch.py network_config:=${CONFIG_DIR}/network_config.yaml"
+ 
+  dogtail:
+    image: klaxalk/dogtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./_logs:/etc/logs:consistent
