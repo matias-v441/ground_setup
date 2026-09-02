@@ -3,7 +3,7 @@ root: ./
 socket_name: mrs
 attach: false
 tmux_options: -f /etc/ctu-mrs/tmux.conf
-startup_window: status
+startup_window: bash
 pre_window: . ./pre.sh
 windows:
   - bash:
