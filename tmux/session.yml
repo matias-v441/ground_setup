@@ -19,12 +19,13 @@ windows:
   - rviz:
       layout: tiled
       panes:
-        - ros2 run rviz2 rviz2 -d ../config/rviz/uav14.rviz --ros-args -p use_sim_time:=true
+        - ros2 run rviz2 rviz2 -d ../config/rviz/uav14_16.rviz --ros-args -p use_sim_time:=true
 
-  - status:
-      layout: tiled
-      panes:
-      - ros2 run mrs_uav_status status.sh
+  # - status:
+  #     layout: tiled
+  #     panes:
+  #       - export UAV_NAME=uav14 ; USE_SIM_TIME=true ; ros2 run mrs_uav_status status.sh
+  #       - export UAV_NAME=uav16 ; USE_SIM_TIME=true ; ros2 run mrs_uav_status status.sh
 
   - rerun:
       layout: tiled
@@ -35,4 +36,4 @@ windows:
   - client:
       layout: tiled
       panes:
-        - cd ../holoswarm-client && . .venv/bin/activate && holoswarm-client --robots uav14 uav16 --location temesvar
+        - cd ../holoswarm-client && . .venv/bin/activate && holoswarm-client --robots uav14 uav16 --location temesvar_123

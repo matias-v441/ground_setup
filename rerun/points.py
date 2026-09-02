@@ -35,7 +35,7 @@ class RerunRosViewer(Node):
 
         self.image_subscription = self.create_subscription(
             Image,
-            "/uav11/open_vins/trackhist",
+            "/uav14/open_vins/trackhist",
             self.image_callback,
             qos_profile_sensor_data,
         )

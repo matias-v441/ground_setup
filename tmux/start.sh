@@ -1,7 +1,12 @@
 #!/bin/bash
-cd "$(dirname "$0")"
 
-git submodule update --init --recursive
+# Absolute path to this script. /home/user/bin/foo.sh
+SCRIPT=$(readlink -f $0)
+# Absolute path this script is in. /home/user/bin
+SCRIPTPATH=`dirname $SCRIPT`
+cd "$SCRIPTPATH"
+
+git submodule update --init --recursive # --remote # pull last versions
 
 cd ../compose
 ./build.sh 
@@ -23,10 +28,6 @@ pip install -e .
 deactivate
 cd ..
 
-# Absolute path to this script. /home/user/bin/foo.sh
-SCRIPT=$(readlink -f $0)
-# Absolute path this script is in. /home/user/bin
-SCRIPTPATH=`dirname $SCRIPT`
 cd "$SCRIPTPATH"
 
 export TMUX_SESSION_NAME=remote

@@ -13,7 +13,8 @@ network:
   robot_names: [
 
     #uav81, uav8
-    uav14
+    uav14,
+    #uav7,
     uav16
     #uav16
     #uav4
