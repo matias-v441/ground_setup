@@ -41,6 +41,14 @@ command -v lazydocker >/dev/null || warn "lazydocker is missing; optional, see h
 step "Checking out the submodules at their pinned commits"
 git submodule sync --recursive
 git submodule update --init --recursive
+# An interrupted clone can leave a submodule fetched, at the right commit, but never checked out (empty index,
+# no files); `submodule update` skips it as up to date. With an empty index there is nothing to lose: restore it.
+git submodule foreach --recursive --quiet '
+  if [ -z "$(git ls-files | head -n 1)" ] && [ -n "$(git ls-tree HEAD | head -n 1)" ]; then
+    echo "restoring $displaypath: cloned, but its files were never checked out"
+    git reset --quiet --hard HEAD
+  fi'
+git submodule update --init --recursive   # submodules of restored ones
 
 # | --------------------- data directories -------------------------- |
 
