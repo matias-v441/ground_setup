@@ -6,20 +6,11 @@ SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 cd "$SCRIPTPATH"
 
-git submodule update --init --recursive # --remote # pull last versions
-
-cd ../compose
-./build.sh 
-cd ..
-
-cd holoswarm-client
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e .
-deactivate
-cd ..
-
-cd "$SCRIPTPATH"
+# the workspace build and the client environment come from ../setup.sh
+if [ ! -d ../holoswarm_ros_packages/install ] || [ ! -x ../holoswarm-client/.venv/bin/holoswarm-client ]; then
+  echo "Not set up yet: run ./setup.sh in the repository root first."
+  exit 1
+fi
 
 export TMUX_SESSION_NAME=remote
 export TMUX_SOCKET_NAME=mrs

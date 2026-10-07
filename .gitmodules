@@ -1,21 +1,8 @@
-[submodule "src/src"]
-	path = src/iroc_bridge
-	url = https://github.com/fly4future/iroc_bridge.git
-[submodule "src/iroc_common"]
-	path = src/iroc_common
-	url = https://github.com/fly4future/iroc_common.git
-[submodule "src/iroc_fleet_manager"]
-	path = src/iroc_fleet_manager
-	url = https://github.com/fly4future/iroc_fleet_manager.git
 [submodule "holoswarm-client"]
 	path = holoswarm-client
 	url = https://github.com/matias-v441/holoswarm-client.git
-[submodule "src/mrs_robot_diagnostics"]
-	path = src/mrs_robot_diagnostics
-	url = https://github.com/fly4future/mrs_robot_diagnostics.git
-[submodule "src/iroc_mission_handler"]
-	path = src/iroc_mission_handler
-	url = https://github.com/fly4future/iroc_mission_handler.git
+	branch = master
 [submodule "holoswarm_ros_packages"]
 	path = holoswarm_ros_packages
 	url = git@mrs.fel.cvut.cz:holoswarm/holoswarm_ros_packages.git
+	branch = buninmat-ground-setup
