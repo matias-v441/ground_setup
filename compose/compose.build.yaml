@@ -1,18 +1,10 @@
-volumes:
-
-  workspace:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ../holoswarm_ros_packages
-
 x-mrs-base: &mrs_base
   image: ${MRS_SYSTEM_IMAGE:-ctumrs/mrs_uav_system:stable}
   privileged: true
   working_dir: /etc/docker/workspace
   volumes:
-    - workspace:/etc/docker/workspace
+    # a plain bind mount: a named volume would keep pointing at the checkout it was first created for
+    - ../holoswarm_ros_packages:/etc/docker/workspace
 
 services:
 

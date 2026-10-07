@@ -64,6 +64,7 @@ step "Building holoswarm_ros_packages in docker (pulls the MRS system image on t
 # | ------------------------ holoswarm-client ----------------------- |
 
 step "Installing holoswarm-client into holoswarm-client/.venv"
+unset PYTHONPATH   # a sourced ROS environment would leak its packages into pip's view of the venv
 if [[ ! -x holoswarm-client/.venv/bin/python ]]; then
   python3 -m venv holoswarm-client/.venv
 fi
