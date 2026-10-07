@@ -5,10 +5,10 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: ../
+      device: ../holoswarm_ros_packages
 
 x-mrs-base: &mrs_base
-  image: ${IROC_DEV_IMAGE:-ctumrs/mrs_uav_system:stable}
+  image: ${MRS_SYSTEM_IMAGE:-ctumrs/mrs_uav_system:stable}
   privileged: true
   working_dir: /etc/docker/workspace
   volumes:
@@ -18,4 +18,10 @@ services:
 
   builder: 
     <<: *mrs_base
+    #command: bash -c " \
+    #  colcon build --packages-select iroc_fleet_manager --cmake-args -DCMAKE_BUILD_TYPE=Debug \
+    #  && colcon build --packages-select heightmap_sampler heightmap_sampler_msgsa --cmake_args -DHEIGHTMAP_SAMPLER_DATASET_DIR=/ \
+    #  && colcon build"
+    #command: bash -c " \
+    #  colcon build --packages-select iroc_fleet_manager --cmake-args -DCMAKE_BUILD_TYPE=Debug && colcon build"
     command: bash -c "colcon build"

@@ -28,9 +28,12 @@ ENV/
 # AI
 .agents/
 .codex/
+.claude/
 
 # User dir
 .holoswarm_client/
+.assets/
+.proj/
 
 # Use leading underscores for private stuff
 _*/

@@ -1,0 +1,66 @@
+# Onboard stack of one simulated UAV (project "<UAV_NAME>"). Started by ../up.sh simulation
+# once per UAV in SIM_UAVS, with UAV_NAME set in the shell.
+
+x-mrs-base: &mrs_base
+  image: ${MRS_SYSTEM_IMAGE:-ctumrs/mrs_uav_system:stable}
+  ipc: host
+  privileged: true
+  working_dir: /etc/docker/workspace
+  volumes:
+    - ${ROOT_DIR}:/etc/docker/workspace
+  env_file:
+    - ../stack.env
+    - ../modes/simulation.env
+  environment:
+    UAV_NAME: ${UAV_NAME:?UAV_NAME must be set}
+  network_mode: host
+
+services:
+
+  hw_api:
+    <<: *mrs_base
+    command: >
+      bash -c "ros2 launch mrs_multirotor_simulator hw_api.launch.py
+      uav_name:=${UAV_NAME}
+      custom_config:=${SIM_CONFIG_DIR}/hw_api.yaml"
+
+  core:
+    <<: *mrs_base
+    command: >
+      bash -c "ros2 launch mrs_uav_core core.launch.py
+      uav_name:=${UAV_NAME}
+      platform_config:=$$(ros2 pkg prefix --share mrs_multirotor_simulator)/config/mrs_uav_system/${UAV_TYPE}.yaml
+      world_config:=${WORLD_CONFIG}
+      custom_config:=${SIM_CONFIG_DIR}/custom_config.yaml
+      network_config:=${NETWORK_CONFIG}"
+
+  automatic_start:
+    <<: *mrs_base
+    command: >
+      bash -c "ros2 launch mrs_uav_autostart automatic_start.launch.py
+      uav_name:=${UAV_NAME}
+      custom_config:=${SIM_CONFIG_DIR}/automatic_start.yaml"
+
+  # emulates the pilot: arm, wait for control output, switch to offboard; then exits
+  # (SIM_TAKEOFF=0: does nothing, the UAV stays on the ground)
+  offboard:
+    <<: *mrs_base
+    command: bash ./compose/simulation/scripts/offboard.sh ${UAV_NAME} ${SIM_TAKEOFF:-1}
+
+  robot_diagnostics:
+    <<: *mrs_base
+    command: >
+      bash -c ". ${WORKSPACE_DIR}/install/setup.bash && ros2 launch mrs_robot_diagnostics state_monitor.launch.py"
+
+  mission_handler:
+    <<: *mrs_base
+    command: >
+      bash -c ". ${WORKSPACE_DIR}/install/setup.bash && ros2 launch iroc_mission_handler mission_handler.launch.py
+      robot_name:=${UAV_NAME}
+      network_config:=${NETWORK_CONFIG}"
+
+  dogtail:
+    image: klaxalk/dogtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../_logs:/etc/logs:consistent

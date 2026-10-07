@@ -5,35 +5,76 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: ${WORKSPACE_DIR}
+      device: ${ROOT_DIR}
+
+  asset_storage:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${ROOT_DIR}/.assets
+
+  proj_grids:
+    driver: local
+    driver_opts:
+        o: bind
+        type: none
+        device: ${ROOT_DIR}/.proj
 
 x-mrs-base: &mrs_base
-  image: ${IROC_DEV_IMAGE:-ctumrs/mrs_uav_system:stable}
+  image: ${MRS_SYSTEM_IMAGE:-ctumrs/mrs_uav_system:stable}
   ipc: host
   privileged: true
   working_dir: /etc/docker/workspace
   volumes:
     - workspace:/etc/docker/workspace
+    - asset_storage:/var/lib/holoswarm/assets
+    - proj_grids:/opt/proj_grids
   env_file:
-    - ${SETUP_ENV_FILE:-stack.env}
+    - stack.env
+    - modes/${MODE:-experiment}.env
   network_mode: host
 
 services:
 
+  # interactive shell, only via ./run.sh
+  test:
+    <<: *mrs_base
+    profiles: [manual]
+    command: bash
+
   zenoh:
     <<: *mrs_base
-    command: bash -c 'export ZENOH_ROUTER_CONFIG_URI=${CONFIG_DIR}/zenoh/pc_router.json5; ros2 run rmw_zenoh_cpp rmw_zenohd'
+    # no ZENOH_ROUTER_CONFIG -> rmw_zenohd default config (listen on :7447, no outbound connects)
+    command: >
+      bash -c 'if [ -n "$$ZENOH_ROUTER_CONFIG" ]; then export ZENOH_ROUTER_CONFIG_URI=$$CONFIG_DIR/zenoh/$$ZENOH_ROUTER_CONFIG; fi;
+      exec ros2 run rmw_zenoh_cpp rmw_zenohd'
 
   fleet_manager:
     <<: *mrs_base
     command: >
-      bash -c ". install/setup.bash && ros2 launch iroc_fleet_manager iroc_fleet_manager.launch.py network_config:=${CONFIG_DIR}/network_config.yaml"
- 
+      bash -c ". ${WORKSPACE_DIR}/install/setup.bash && ros2 launch iroc_fleet_manager iroc_fleet_manager.launch.py network_config:=${NETWORK_CONFIG}"
+
+  # terrain heights (bundled mrs_terrain dataset) for the bridge: /$GS_NS/heightmap_sampler/sample_height
+  heightmap_sampler:
+    <<: *mrs_base
+    command: >
+      bash -c ". ${WORKSPACE_DIR}/install/setup.bash && exec ros2 run heightmap_sampler sampler_node --ros-args -r __ns:=/$${GS_NS:-gs}"
+
   iroc_bridge:
     <<: *mrs_base
     command: >
-      bash -c ". install/setup.bash && ros2 launch iroc_bridge iroc_bridge.launch.py network_config:=${CONFIG_DIR}/network_config.yaml"
+      bash -c ". ${WORKSPACE_DIR}/install/setup.bash && ros2 launch iroc_bridge iroc_bridge.launch.py network_config:=${NETWORK_CONFIG} ${BRIDGE_CUSTOM_CONFIG:+custom_config:=${BRIDGE_CUSTOM_CONFIG}}"
  
+  # test stand-in for the robots' mission handlers (ground-only mode, see up.sh FAKE_ROBOTS)
+  fake_robots:
+    <<: *mrs_base
+    profiles: [fake-robots]
+    environment:
+      FAIL_UPLOAD: ${FAKE_FAIL_UPLOAD:-}
+    command: >
+      bash -c ". ${WORKSPACE_DIR}/install/setup.bash && exec python3 ./compose/testing/fake_robots.py ${FAKE_ROBOTS:-uav1}"
+
   dogtail:
     image: klaxalk/dogtail:latest
     volumes:

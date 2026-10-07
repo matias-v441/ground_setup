@@ -1,0 +1,27 @@
+# Simulator (project "sim"). Started by ../up.sh simulation.
+
+x-mrs-base: &mrs_base
+  image: ${MRS_SYSTEM_IMAGE:-ctumrs/mrs_uav_system:stable}
+  ipc: host
+  privileged: true
+  working_dir: /etc/docker/workspace
+  volumes:
+    - ${ROOT_DIR}:/etc/docker/workspace
+  env_file:
+    - ../stack.env
+    - ../modes/simulation.env
+  network_mode: host
+
+services:
+
+  simulator:
+    <<: *mrs_base
+    command: >
+      bash -c "ros2 launch mrs_multirotor_simulator multirotor_simulator.launch.py
+      custom_config:=${SIM_CONFIG_DIR}/simulator.yaml"
+
+  dogtail:
+    image: klaxalk/dogtail:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../_logs:/etc/logs:consistent

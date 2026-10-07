@@ -16,3 +16,6 @@
 [submodule "src/iroc_mission_handler"]
 	path = src/iroc_mission_handler
 	url = https://github.com/fly4future/iroc_mission_handler.git
+[submodule "holoswarm_ros_packages"]
+	path = holoswarm_ros_packages
+	url = git@mrs.fel.cvut.cz:holoswarm/holoswarm_ros_packages.git

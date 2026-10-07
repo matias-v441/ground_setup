@@ -1,0 +1,5 @@
+# Bridge config of the integration tests (holoswarm-client/test/integration): a database of its own,
+# so tests never touch the operator's stored queues.
+iroc_bridge:
+  workspaces:
+    db_path: "/var/lib/holoswarm/assets/test.sqlite"

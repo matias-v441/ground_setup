@@ -13,4 +13,4 @@ if [ -z "$SESSION" ]; then
   exit 1
 fi
 
-docker exec -it "$SESSION-$CONTAINER-1" bash -lc '. /opt/ros/jazzy/setup.sh && . install/setup.sh && exec bash'
+docker exec -it "$SESSION-$CONTAINER-1" bash -lc '. /opt/ros/jazzy/setup.sh && . holoswarm_ros_packages/install/setup.sh && exec bash'

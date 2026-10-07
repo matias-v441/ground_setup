@@ -1,4 +1,4 @@
-## Ground station setup for experiments
+## Ground station setup for experiments and simulation
 Clone the repo and run `./tmux/start.sh`
 
 Make sure to have docker:

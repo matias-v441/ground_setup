@@ -12,15 +12,6 @@ cd ../compose
 ./build.sh 
 cd ..
 
-cd rerun
-source /opt/ros/jazzy/setup.bash
-python3 -m venv --system-site-packages .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-deactivate
-cd ..
-
 cd holoswarm-client
 python3 -m venv .venv
 source .venv/bin/activate
