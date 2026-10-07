@@ -21,7 +21,7 @@ The holoswarm ground station runs multi-UAV missions on the [MRS UAV system](htt
 ### Install
 
 ```bash
-git clone --recursive git@github.com:matias-v441/ground_setup.git
+git clone --recursive https://github.com/matias-v441/ground_setup.git
 cd ground_setup
 ./setup.sh
 ```
