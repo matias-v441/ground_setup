@@ -34,6 +34,7 @@ ENV/
 .holoswarm_client/
 .assets/
 .proj/
+.uv/
 
 # Use leading underscores for private stuff
 _*/

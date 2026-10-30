@@ -13,6 +13,12 @@ cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
 PROJ_GRIDS=(cz_cuzk_CR-2005.tif us_nga_egm96_15.tif)
 
+# uv and the python it installs for holoswarm-client live in .uv/, independent of any uv or python on the host
+UV_VERSION=0.13.6
+UV="$PWD/.uv/bin/uv"
+export UV_PYTHON_INSTALL_DIR="$PWD/.uv/python"
+export UV_PYTHON_PREFERENCE=only-managed   # never a system python, whatever version the host has
+
 step() { echo; echo "==> $*"; }
 fail() { echo "ERROR: $*" >&2; exit 1; }
 warn() { echo "WARNING: $*" >&2; }
@@ -27,11 +33,6 @@ command -v curl >/dev/null || fail "curl is missing: sudo apt install curl"
 command -v docker >/dev/null || fail "docker is missing, install it with:
   bash <(curl -fsSL https://raw.githubusercontent.com/ctu-mrs/mrs_docker/master/install/install_docker_ubuntu.sh)"
 docker compose version >/dev/null 2>&1 || fail "the docker compose plugin is missing (or docker cannot be used by $USER, see 'docker info')"
-
-command -v python3 >/dev/null || fail "python3 is missing: sudo apt install python3 python3-venv"
-python3 -c 'import sys; sys.exit(sys.version_info < (3, 11))' \
-  || fail "holoswarm-client needs python >= 3.11, found $(python3 --version)"
-python3 -c 'import ensurepip, venv' 2>/dev/null || fail "python3 venv is missing: sudo apt install python3-venv"
 
 command -v tmuxinator >/dev/null || warn "tmuxinator is missing; only ./tmux/start.sh needs it (sudo apt install tmuxinator)"
 command -v lazydocker >/dev/null || warn "lazydocker is missing; optional, see https://github.com/jesseduffield/lazydocker"
@@ -71,13 +72,29 @@ step "Building holoswarm_ros_packages in docker (pulls the MRS system image on t
 
 # | ------------------------ holoswarm-client ----------------------- |
 
-step "Installing holoswarm-client into holoswarm-client/.venv"
-unset PYTHONPATH   # a sourced ROS environment would leak its packages into pip's view of the venv
-if [[ ! -x holoswarm-client/.venv/bin/python ]]; then
-  python3 -m venv holoswarm-client/.venv
+step "Installing uv $UV_VERSION into .uv"
+if [[ -x "$UV" && "$("$UV" --version)" == "uv $UV_VERSION "* ]]; then
+  echo "uv $UV_VERSION already present"
+else
+  curl --fail --silent --show-error --location "https://astral.sh/uv/$UV_VERSION/install.sh" \
+    | UV_INSTALL_DIR="$PWD/.uv/bin" UV_NO_MODIFY_PATH=1 sh -s -- --quiet
 fi
-holoswarm-client/.venv/bin/pip install --quiet --upgrade pip
-holoswarm-client/.venv/bin/pip install --quiet -e holoswarm-client
+
+step "Installing holoswarm-client into holoswarm-client/.venv"
+unset PYTHONPATH   # a sourced ROS environment would leak its packages into the venv
+(
+  cd holoswarm-client
+  # Keep the venv if it is built on the managed python that uv picks for requires-python in pyproject.toml.
+  # Otherwise (first run, a venv from the system python, requires-python changed) recreate it: `uv venv` downloads
+  # that python into .uv/python.
+  python="$("$UV" python find --system 2>/dev/null || true)"
+  if [[ -z "$python" || ! -x .venv/bin/python ]] \
+      || [[ "$(sed -n 's/^home = //p' .venv/pyvenv.cfg 2>/dev/null)" != "$(dirname "$python")" ]]; then
+    "$UV" venv --clear --quiet .venv
+  fi
+  "$UV" pip install --quiet --python .venv/bin/python -e .
+  echo "$(.venv/bin/python --version) in holoswarm-client/.venv"
+)
 
 cat <<EOF
 

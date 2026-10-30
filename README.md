@@ -12,7 +12,7 @@ The holoswarm ground station runs multi-UAV missions on the [MRS UAV system](htt
   bash <(curl -fsSL https://raw.githubusercontent.com/ctu-mrs/mrs_docker/master/install/install_docker_ubuntu.sh)
   ```
 - git with SSH keys for GitHub and for `mrs.fel.cvut.cz`. `holoswarm_ros_packages` and its `holoswarm_*` submodules are private repositories there.
-- python3 ≥ 3.11 with `venv`, and curl
+- curl. Python is not needed on the host: `setup.sh` downloads [uv](https://docs.astral.sh/uv/) into `.uv/`, and uv installs the Python version that `holoswarm-client/pyproject.toml` requires.
 - Optional:
   - [tmuxinator](https://github.com/tmuxinator/tmuxinator) for `./tmux/start.sh`
   - [lazydocker](https://github.com/jesseduffield/lazydocker) to watch the containers
@@ -31,7 +31,7 @@ cd ground_setup
 2. Checks out all submodules at their pinned commits.
 3. Downloads the PROJ grids into `.proj/`.
 4. Builds `holoswarm_ros_packages` with colcon inside the `ctumrs/mrs_uav_system:stable` image (`compose/build.sh`).
-5. Installs the GUI into `holoswarm-client/.venv`.
+5. Downloads uv into `.uv/` and installs the GUI into `holoswarm-client/.venv` with a uv-managed Python (in `.uv/python/`) that matches `requires-python` in `holoswarm-client/pyproject.toml`. An existing `.venv` built on another Python is recreated.
 
 After changing ROS code, rebuild with `./compose/build.sh`.
 
@@ -191,4 +191,5 @@ At startup, the bridge creates the default workspace `temesvar` from every `teme
 | `holoswarm-client/` | GUI (submodule) |
 | `tmux/` | `start.sh`: tmux session for experiments |
 | `.proj/` | PROJ grids (downloaded by `setup.sh`, not tracked) |
+| `.uv/` | uv and the Python of `holoswarm-client/.venv` (installed by `setup.sh`, not tracked) |
 | `.assets/` | Persistent runtime data, e.g. test databases (not tracked) |
