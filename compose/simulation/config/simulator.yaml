@@ -7,8 +7,8 @@ uav_names: [
   "uav16",
 ]
 
-# the GNSS origin in hw_api.yaml equals the origin of config/worlds/world_bechovice.yaml,
-# which lies ~15 m from the east edge of its safety area -> spawn west of it
+# the GNSS origin in hw_api.yaml lies in config/worlds/world_temesvar_field_123.yaml (modes/simulation.env),
+# ~10 m inside the south-west corner of its safety area (~40 m west, ~38 m south of its origin)
 uav14:
   type: "x500"
   spawn:

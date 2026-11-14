@@ -160,7 +160,7 @@ A queue moves through three steps. In the client's **Mission** window:
 
 Rules:
 - Only one queue can be submitted at a time, because the robots must be idle to stage a goal. While a queue is submitted, single missions are refused too.
-- A submitted queue is read-only. Cancel it to change it.
+- A submitted queue (`UPLOADING`, `READY`, `RUNNING`) can only lose missions or get new ones at the end. Its missions can't be changed or reordered, and of its settings only the name can change. Remove a mission with **x** and add new ones with *New mission*, then press **Upload changes**. A removed mission that is already on the robots (staged or running) is cancelled there, and the queue carries on with the next mission. The other missions keep running.
 - A `FINISHED`, `CANCELLED`, `INTERRUPTED` or `REJECTED` queue can be submitted again and runs from scratch.
 - A restart of the bridge or the fleet manager turns a submitted queue `REJECTED` if it had not started, or `INTERRUPTED` if it was running.
 

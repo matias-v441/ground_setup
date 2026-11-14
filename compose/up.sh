@@ -5,6 +5,9 @@
 #   simulation:   SIM_UAVS="uav1"    run only these of the configured UAVs (default: all of modes/simulation.env)
 #                 SIM_TAKEOFF=0      do not arm / switch to offboard, so the UAVs stay on the ground
 #   any mode:     BRIDGE_CUSTOM_CONFIG=./compose/testing/bridge_test.yaml  extra bridge config (path relative to ROOT)
+#                 NETWORK_CONFIG=./path/network_config.yaml  network config (robot names) instead of the mode's (relative to ROOT)
+#   simulation:   SIM_CONFIG_DIR=./path  simulation configs (simulator.yaml, hw_api.yaml, ...) used as they are, instead of
+#                 compose/simulation/config; NETWORK_CONFIG defaults to its network_config.yaml (relative to ROOT)
 #   ground-only:  FAKE_ROBOTS="uav1" also start fake mission handlers for these robots (compose/testing/fake_robots.py)
 #                 FAKE_FAIL_UPLOAD="uav2"  fake robots that refuse uploads
 
@@ -33,7 +36,11 @@ if [ "$MODE" = simulation ]; then
   SIM_UAVS="${SIM_UAVS:-$CONFIGURED_UAVS}"
   export SIM_TAKEOFF="${SIM_TAKEOFF:-1}"
 
-  if [ "$SIM_UAVS" != "$CONFIGURED_UAVS" ]; then
+  if [ -n "${SIM_CONFIG_DIR:-}" ]; then
+    # The caller's configs (e.g. the integration tests'): they list exactly the UAVs to run.
+    export SIM_CONFIG_DIR
+    export NETWORK_CONFIG="${NETWORK_CONFIG:-$SIM_CONFIG_DIR/network_config.yaml}"
+  elif [ "$SIM_UAVS" != "$CONFIGURED_UAVS" ]; then
     # Simulator and network configs listing only the selected UAVs (paths relative to ROOT_DIR).
     python3 simulation/scripts/select_uavs.py simulation/config simulation/_generated $SIM_UAVS
     export SIM_CONFIG_DIR=./compose/simulation/_generated
